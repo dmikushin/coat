@@ -7,10 +7,14 @@ endif()
 
 project(coat CXX)
 
-option(ENABLE_ASMJIT "enable AsmJit backend" ON)
-option(ENABLE_LLVMJIT "enable LLVM JIT backend" ON)
+option(COAT_ENABLE_ASMJIT "Enable AsmJit backend in Coat" ON)
+option(COAT_ENABLE_LLVMJIT "Enable LLVM JIT backend in Coat" ON)
+option(COAT_BUILD_TESTS "Enable building of tests in Coat" ON)
+option(COAT_BUILD_EXAMPLES "Enable building of examples in Coat" ON)
 
+if (COAT_BUILD_TESTS)
 enable_testing()
+endif()
 
 macro(coat_add_executable)
 	set(options TEST)
@@ -35,7 +39,7 @@ macro(coat_add_executable)
 	endforeach()
 endmacro()
 
-if (ENABLE_LLVMJIT)
+if (COAT_ENABLE_LLVMJIT)
 	find_package(LLVM CONFIG REQUIRED PATHS "/usr/lib/llvm-12/lib/cmake" NO_DEFAULT_PATH)
 	find_package(Clang CONFIG REQUIRED PATHS "/usr/lib/llvm-12/lib/cmake" NO_DEFAULT_PATH)
 
@@ -47,7 +51,7 @@ if (ENABLE_LLVMJIT)
 
 	add_library(${PROJECT_NAME}_llvmjit INTERFACE)
 	set_target_properties(${PROJECT_NAME}_llvmjit PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
-    target_include_directories(${PROJECT_NAME}_llvmjit INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+	target_include_directories(${PROJECT_NAME}_llvmjit INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 	add_library(${PROJECT_NAME}::llvmjit ALIAS ${PROJECT_NAME}_llvmjit)
 
 	separate_arguments(LLVM_DEFINITIONS)
@@ -65,27 +69,31 @@ if (ENABLE_LLVMJIT)
 	target_link_directories(${PROJECT_NAME}_llvmjit INTERFACE ${LLVM_LIBRARY_DIRS})
 	target_link_libraries(${PROJECT_NAME}_llvmjit INTERFACE LLVMCore LLVMX86CodeGen LLVMPerfJITEvents LLVMOrcJIT LLVMExecutionEngine)
 
-	coat_add_executable(NAMES
-		tests
-		calculator
-		fibonacci
-		BACKEND llvmjit)
+	if (COAT_BUILD_EXAMPLES)
+		coat_add_executable(NAMES
+			tests
+			calculator
+			fibonacci
+			BACKEND llvmjit)
+	endif()
 
-	coat_add_executable(NAMES
-		sum
-		cast
-		call
-		reading_datastruct
-		# Just trying vector types
-		vectormean
-		vectormerge
-		vectorintersection
-		BACKEND llvmjit
-		TEST)
+	if (COAT_BUILD_TESTS)
+		coat_add_executable(NAMES
+			sum
+			cast
+			call
+			reading_datastruct
+			# Just trying vector types
+			vectormean
+			vectormerge
+			vectorintersection
+			BACKEND llvmjit
+			TEST)
+	endif()
 
 endif()
 
-if(ENABLE_ASMJIT)
+if(COAT_ENABLE_ASMJIT)
 	add_subdirectory(ThirdParty/asmjit)
 	set(ASMJIT_INCLUDE_DIR ThirdParty/asmjit/src/asmjit)
 	set(ASMJIT_LIBRARIES asmjit)
@@ -93,11 +101,11 @@ if(ENABLE_ASMJIT)
 
 	add_library(${PROJECT_NAME}_asmjit INTERFACE)
 	set_target_properties(${PROJECT_NAME}_asmjit PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
-    target_include_directories(${PROJECT_NAME}_asmjit INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+	target_include_directories(${PROJECT_NAME}_asmjit INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 	add_library(${PROJECT_NAME}::asmjit ALIAS ${PROJECT_NAME}_asmjit)
 
-    target_compile_definitions(${PROJECT_NAME}_asmjit INTERFACE ENABLE_ASMJIT)
-    target_link_libraries(${PROJECT_NAME}_asmjit INTERFACE asmjit asmjit_perf)
+	target_compile_definitions(${PROJECT_NAME}_asmjit INTERFACE ENABLE_ASMJIT)
+	target_link_libraries(${PROJECT_NAME}_asmjit INTERFACE asmjit asmjit_perf)
 
 	# Debugging options
 	if(NOT DEFINED PROFILING)
@@ -109,21 +117,25 @@ if(ENABLE_ASMJIT)
 		target_compile_definitions(${PROJECT_NAME}_asmjit PROFILING_SOURCE)
 	endif()
 
-	coat_add_executable(NAMES
-		tests
-		calculator
-		fibonacci
-		BACKEND asmjit)
+	if (COAT_BUILD_EXAMPLES)
+		coat_add_executable(NAMES
+			tests
+			calculator
+			fibonacci
+			BACKEND asmjit)
+	endif()
 
-	coat_add_executable(NAMES
-		sum
-		cast
-		call
-		reading_datastruct
-		# Just trying vector types
-		vectormean
-		BACKEND asmjit
-		TEST)
+	if (COAT_BUILD_TESTS)
+		coat_add_executable(NAMES
+			sum
+			cast
+			call
+			reading_datastruct
+			# Just trying vector types
+			vectormean
+			BACKEND asmjit
+			TEST)
+	endif()
 
 endif()
 
