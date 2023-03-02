@@ -180,7 +180,7 @@ struct Function<runtimellvmjit,R(*)(Args...)>{
 				llvm::Function *fn = cc.ir.GetInsertBlock()->getParent();
 				llvm::Function::arg_iterator arguments = fn->arg_begin();
 				// set debug location for all assignments
-				cc.ir.SetCurrentDebugLocation(llvm::DebugLoc::get(line, 0, cc.debugScope));
+				cc.ir.SetCurrentDebugLocation(llvm::DILocation::get(cc.ir.getContext(), line, 0, cc.debugScope));
 				// (tuple_at_0 = (llvm::Value*)args++), (tuple_at_1 = (llvm::Value*)args++), ... ;
 				((args = (llvm::Value*)arguments++), ...);
 			},
