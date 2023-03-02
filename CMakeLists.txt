@@ -34,7 +34,7 @@ macro(coat_add_executable)
 		endif()
 	endforeach()
 endmacro()
-     
+
 if (ENABLE_LLVMJIT)
 	find_package(LLVM CONFIG REQUIRED PATHS "/usr/lib/llvm-12/lib/cmake" NO_DEFAULT_PATH)
 	find_package(Clang CONFIG REQUIRED PATHS "/usr/lib/llvm-12/lib/cmake" NO_DEFAULT_PATH)
@@ -47,7 +47,7 @@ if (ENABLE_LLVMJIT)
 
 	add_library(${PROJECT_NAME}_llvmjit INTERFACE)
 	set_target_properties(${PROJECT_NAME}_llvmjit PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
-	target_include_directories(${PROJECT_NAME}_llvmjit INTERFACE ${CMAKE_SOURCE_DIR}/include)
+    target_include_directories(${PROJECT_NAME}_llvmjit INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 	add_library(${PROJECT_NAME}::llvmjit ALIAS ${PROJECT_NAME}_llvmjit)
 
 	separate_arguments(LLVM_DEFINITIONS)
@@ -93,9 +93,9 @@ if(ENABLE_ASMJIT)
 
 	add_library(${PROJECT_NAME}_asmjit INTERFACE)
 	set_target_properties(${PROJECT_NAME}_asmjit PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
-	target_include_directories(${PROJECT_NAME}_asmjit INTERFACE ${CMAKE_SOURCE_DIR}/include)
+    target_include_directories(${PROJECT_NAME}_asmjit INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 	add_library(${PROJECT_NAME}::asmjit ALIAS ${PROJECT_NAME}_asmjit)
-	
+
     target_compile_definitions(${PROJECT_NAME}_asmjit INTERFACE ENABLE_ASMJIT)
     target_link_libraries(${PROJECT_NAME}_asmjit INTERFACE asmjit asmjit_perf)
 
