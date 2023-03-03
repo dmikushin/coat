@@ -41,7 +41,6 @@ endmacro()
 
 if (COAT_ENABLE_LLVMJIT)
 	find_package(LLVM CONFIG REQUIRED PATHS "/usr/lib/llvm-13/lib/cmake" NO_DEFAULT_PATH)
-	find_package(Clang CONFIG REQUIRED PATHS "/usr/lib/llvm-13/lib/cmake" NO_DEFAULT_PATH)
 
 	if(MSVC)
 		set(DISABLE_RTTI_FLAG /GR-)
